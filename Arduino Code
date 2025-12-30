@@ -1,0 +1,83 @@
+ARDUINO CODING
+#include <SPI.h>
+#include <MFRC522.h>
+#include <Wire.h>
+#include <LiquidCrystal_I2C.h>
+
+#define SS_PIN 10
+#define RST_PIN 9
+MFRC522 rfid(SS_PIN, RST_PIN);
+
+LiquidCrystal_I2C lcd(0x27, 16, 2);
+
+struct Student {
+  String name;
+  String uid;
+  String hno;
+};
+
+Student students[] = {
+  {"Iswarya M","6338CA01","H_No:301"},
+  {"Rithika S","B54A4603","H_No:302"},
+  {"Smrithi K","990A3403","H_No:303"},
+  {"Sanju VJ","EEA42402","H_No:304"}
+};
+
+const int studentCount = sizeof(students) / sizeof(Student);
+
+void setup() {
+  Serial.begin(9600);
+  SPI.begin();
+  rfid.PCD_Init();
+
+  lcd.init();
+  lcd.backlight();
+
+  lcd.clear();
+  lcd.print("Scan RFID card");
+}
+
+void loop() {
+  if (!rfid.PICC_IsNewCardPresent() || !rfid.PICC_ReadCardSerial())
+    return;
+
+  String uidStr = getUIDString();
+
+  int index = findStudentByUID(uidStr);
+  lcd.clear();
+
+  if (index == -1) {
+    lcd.print("Unknown Card");
+    Serial.println("Unknown UID scanned: " + uidStr);
+  } else {
+    lcd.print(students[index].name);
+    lcd.setCursor(0, 1);
+    lcd.print(students[index].hno);
+    Serial.println(students[index].name + " - " + students[index].hno);
+  }
+
+  delay(3000);
+  lcd.clear();
+  lcd.print("Scan RFID card");
+
+  rfid.PICC_HaltA();
+  rfid.PCD_StopCrypto1();
+}
+
+String getUIDString() {
+  String uidStr = "";
+  for (byte i = 0; i < rfid.uid.size; i++) {
+    uidStr += String(rfid.uid.uidByte[i] < 0x10 ? "0" : "");
+    uidStr += String(rfid.uid.uidByte[i], HEX);
+  }
+  uidStr.toUpperCase();
+  return uidStr;
+}
+
+int findStudentByUID(String uid) {
+  for (int i = 0; i < studentCount; i++) {
+    if (students[i].uid == uid)
+      return i;
+  }
+  return -1;
+}
