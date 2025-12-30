@@ -1,0 +1,14 @@
+HARDWARE  COMPONENTS
+RFID Tags: Passive tags embedded in student ID cards (13.56 MHz).
+•	RFID Reader: Short-range reader (RC522 or similar), reads card when tapped.
+•	Microcontroller: Arduino Uno  for processing.
+•	LCD/LED Display: 16x2 LCD  screen to show seat details.
+•	Power Supply: 9V regulated source depending on components.
+
+ 
+SOFTWARE COMPONENTS
+•	Arduino IDE: Used for writing and uploading microcontroller code.
+•	RFID Library: For interfacing with the RC522 module.
+•	Preloaded Database: Student ID and seat number mapping (stored in code or external memory like EEPROM/SD card).
+•	Display Control Logic: To format and display output.
+
